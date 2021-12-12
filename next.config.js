@@ -6,6 +6,7 @@ const withNextra = require("nextra")({
 });
 module.exports = withNextra({
   reactStrictMode: true,
+  basePath: "/sterling-docs",
   async redirects() {
     return [
       {
