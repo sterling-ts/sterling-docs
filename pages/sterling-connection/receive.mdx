@@ -1,0 +1,214 @@
+import Callout from "/nextra-theme-sterling/callout";
+
+# Provider -> Sterling
+
+A data provider can send messages to the `sterling-connection` middleware,
+either in response to a message it received from the middleware or because, for
+example, it has new data that it wants Sterling to display.
+
+This page outlines all of the messages that the middleware understands as well
+as the effect the message has on the Sterling interface.
+
+## `data`
+
+A message containing new data for Sterling to display and/or changes to make to
+any data that is already displayed. Note that once data is visible to the user,
+the data itself cannot be changed. Updates can only be applied to a datum's
+metadata, which describes a few choice UI components associated with each datum.
+
+#### Payload Fields
+
+All fields are optional.
+
+- `enter` - An array of new data (as [`Datum`](./types#Datum) objects) to
+  display in Sterling.
+- `update` - An array of updates (as [`DatumMeta`](./types#DatumMeta) objects)
+  to apply to existing data in Sterling.
+- `exit` - An array of data IDs to remove from display in Sterling.
+
+#### Payload Types
+
+```typescript
+{
+  enter?: Datum[];
+  update?: DatumMeta[];
+  exit?: string[];
+}
+```
+
+#### Examples
+
+In this example, Alloy 5 has generated an instance to display in Sterling. When
+the instance is displayed, a "Next" button should be visible that, when clicked
+by the user, sends an action back to Alloy with the string "next". Furthermore,
+Alloy is able to evaluate expressions for this instance, so the evaluator UI
+should be available when viewing the instance.
+
+```json
+{
+  "type": "data",
+  "version": 1,
+  "payload": {
+    "enter": [
+      {
+        "id": "1",
+        "actions": [{ "id": "next", "text": "Next" }],
+        "evaluator": true,
+        "data": "<alloy>...</alloy>"
+      }
+    ]
+  }
+}
+```
+
+Now, let's say that the user clicked the "Next" button and Alloy generated the
+next instance to display. The following message instructs Sterling to display
+the new instance _and_ to remove the ability to use the evaluator or click the
+"Next" button from the previous instance.
+
+```json
+{
+  "type": "data",
+  "version": 1,
+  "payload": {
+    "enter": [
+      {
+        "id": "2",
+        "actions": [{ "id": "next", "text": "Next" }],
+        "evaluator": true,
+        "data": "<alloy>...</alloy>"
+      }
+    ],
+    "update": [{ "id": "1", "actions": [], "evaluator": false }]
+  }
+}
+```
+
+Finally, let's say the user has opened a new file in Alloy and generated a new
+instance to display in Sterling. The following message will remove all previous
+instances from Sterling and display only the new one.
+
+<Callout type="warning" emoji="⚠️">
+  Developers of data providers should carefully consider when it is appropriate
+  to remove data from Sterling, as doing so could potentially lead to a bad user
+  experience. Customizations the user has made within Sterling, such as graph
+  layouts, will not be preserved in any way.
+</Callout>
+
+```json
+{
+  "type": "data",
+  "version": 1,
+  "payload": {
+    "enter": [
+      {
+        "id": "3",
+        "actions": [{ "id": "next", "text": "Next" }],
+        "evaluator": true,
+        "data": "<alloy>...</alloy>"
+      }
+    ],
+    "exit": ["1", "2"]
+  }
+}
+```
+
+## `eval`
+
+A message that includes the result of evaluating an expression associated with a
+specific datum.
+
+#### Payload Fields
+
+- `id` - The ID of the [`eval`](./send#eval) message originally sent from
+  Sterling to the provider.
+- `result` - The result of the evaluated expression.
+
+#### Payload Types
+
+```typescript
+{
+  id: string;
+  result: string;
+}
+```
+
+#### Example
+
+```json
+{
+  "type": "eval",
+  "version": 1,
+  "payload": {
+    "id": "0",
+    "result": "{}"
+  }
+}
+```
+
+## `meta`
+
+A message that includes information about a data provider, such as the
+provider's name and the types of views it supports.
+
+#### Payload Fields
+
+- `name` - The name of the provider, which will be displayed in various places
+  around the Sterling UI. Defaults to `"unknown provider"` if not provided.
+- `evaluator` - A boolean indicating whether the data provider provides
+  [REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop)
+  functionality. If false, the evaluator will be removed from the Sterling UI
+  completely. If true, the evaluator will be in Sterling UI and can be enabled
+  or disabled on a per-datum basis (see [`data`](#data) for more). The default
+  is false.
+- `views` - A list of data views the provider supports, in the order they will
+  be displayed in the Sterling UI. Defaults to `[]` if not provided, and no
+  views will be displayed in the Sterling UI.
+
+#### Payload Types
+
+```typescript
+{
+  name?: string;
+  evaluator?: boolean;
+  views?: ("graph" | "table" | "script")[];
+}
+```
+
+#### Example
+
+```json
+{
+  "type": "meta",
+  "version": 1,
+  "payload": {
+    "name": "Alloy",
+    "evaluator": true,
+    "views": ["graph", "table", "script"]
+  }
+}
+```
+
+## `message`
+
+[TODO, low priority] This will allow providers to display a message in the
+Sterling status bar.
+
+## `notify`
+
+[TODO, low priority] This will allow providers to display a
+[toast](https://chakra-ui.com/docs/feedback/toast) in the Sterling UI.
+
+## `pong`
+
+The `pong` message is one of two messages that does not follow the standard
+message format. The other, [`ping`](./send#ping), is used in concert with `pong`
+to keep the connection between the middleware and a data provider alive. As
+such, when a data provider receives a `ping` message, it should immediately
+respond with a `pong`.
+
+#### Example
+
+```
+"pong"
+```

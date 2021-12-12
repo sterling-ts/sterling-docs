@@ -1,0 +1,46 @@
+# Sterling Connection
+
+The `sterling-connection` package is a
+[Redux middleware](https://redux.js.org/understanding/history-and-design/middleware)
+that maintains a WebSocket connection between Sterling and a data provider such
+as Alloy or Forge.
+
+## Introduction
+
+Talking points:
+
+- What is data?
+- When are responses required and when can you just send a message?
+
+## Communication Protocol
+
+All messages between a data provider and the `sterling-connection` middleware
+are in JSON format, and are structured as follows:
+
+```json
+{
+  "type": "message-type",
+  "version": 1
+  "payload": ...
+}
+```
+
+The `type` field is a string that identifies the shape of the `payload` field,
+and the `version` field is an integer identifying the version of the
+communication protocol. The `payload` field contains any data associated with
+the message type. In some cases there is no data associated with a message, and
+so the `payload` field can be omitted.
+
+There are exactly two exceptions to this rule. The [`ping`](./send#ping) and
+[`pong`](./receive#pong) messages, which are used to keep the WebSocket
+connection alive, are simply the strings `"ping"` and `"pong"`.
+
+## Messages
+
+The message specifications are categorized in these docs based on the sender and
+receiver of the message:
+
+- [Sterling -> Provider](./send) - Messages sent from Sterling to the data
+  provider.
+- [Provider -> Sterling](./receive) - Messages sent from the data provider to
+  Sterling.

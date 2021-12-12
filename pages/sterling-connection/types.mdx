@@ -1,0 +1,62 @@
+# Types
+
+The TypeScript types listed on this page describe the shape of some common
+elements used in messages sent between the `sterling-connection` middleware and
+data providers.
+
+## `Button`
+
+The `Button` type describes a button displayed in the Sterling interface.
+
+#### Fields
+
+- `id` - A unique identifier.
+- `text` - The string to display in the button.
+
+#### Types
+
+```typescript
+{
+  id: string;
+  text: string;
+}
+```
+
+## `Datum`
+
+The `Datum` type describes an individual datum displayed in Sterling, along with
+some metadata that describes a few choice UI components that are associated with
+that datum.
+
+#### Fields
+
+- `id` - A unique identifier.
+- `data` - The raw data, in a supported [format](./formats).
+- (optional) `actions` - An array of buttons that will be displayed with this
+  datum. When one of these buttons is clicked, an [`action`](./send#action)
+  message will be sent to the provider with the button's `id` as payload. No
+  actions are provided by default.
+- (optional) `evaluator` - A boolean indicating whether REPL functionality is
+  available for this datum. Defaults to false.
+
+#### Types
+
+```typescript
+{
+  id: string;
+  data: string;
+  actions?: Button[];
+  evaluator?: boolean;
+}
+```
+
+## `DatumMeta`
+
+This type is identical to the [`Datum`](#datum) type with the exception of the
+`data` field, which is omitted.
+
+#### Types
+
+```typescript
+Omit<Datum, 'data'>;
+```
