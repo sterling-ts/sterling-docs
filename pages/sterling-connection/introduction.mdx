@@ -7,10 +7,50 @@ as Alloy or Forge.
 
 ## Introduction
 
-Talking points:
+The WebSocket connection between `sterling-connection` and a data provider is
+used as a two-way street. Data providers can provide data for Sterling to
+display, and Sterling can tell the provider when the user has interacted with
+the interface in some way.
 
-- What is data?
-- When are responses required and when can you just send a message?
+### Data in Sterling
+
+There are numerous types of data that can be communicated between Sterling and a
+provider, but the most important is certainly the [`Datum`](./types#datum). In
+essence, a `Datum` is a piece of data that can be displayed in any of Sterling's
+views (of which there are three: Graph, Table, and Script). Historically,
+Sterling began as a visualizer for [Alloy](http://alloytools.org/), and so
+individual Alloy instances in the form of XML strings were the data flowing
+through Sterling. To remove this strict dependency on Alloy XML, the `Datum`
+type adds a layer of abstraction so that Sterling can support more data formats.
+As of December 2021 the Alloy XML format is still the only one supported, but
+the data must now be sent to Sterling using a `Datum` object instead of the raw
+XML string.
+
+All other data flowing between Sterling and a provider are typically related to
+some sort of user interaction, whether it be the buttons that are available to a
+user when looking at some datum or a REPL expression that the user wants to have
+evaluated.
+
+### Communication Expectations
+
+A WebSocket connection is different from an HTTP connection in that it does not
+use the request-response paradigm. Rather, a line of communication is opened up
+between the server (the data provider) and the client (Sterling) and the two are
+free to send messages to each other as they wish. Think of it like text
+messaging: you might send a text to a friend to tell them you had fun hiking
+yesterday, or you might ask them to send you that really amazing photo they took
+while you were hiking yesterday. Sometimes you expect a response, and sometimes
+you don't. Either way, you send the message and then go about your day, and your
+friend can choose if and when to respond. On the other hand, maybe your friend
+already knows that you want that picture, and so they send it to you without you
+asking.
+
+The same is true for Sterling and a data provider. Sometimes Sterling will ask
+the provider for data and expect a response, and sometimes you'll want to send
+data to Sterling without it even asking for it. When Sterling _does_ expect a
+response from a provider, we'll let you know in the documentation, and if and
+when the provider responds is up to the developer of the provider. Either way,
+Sterling will continue to go about its day.
 
 ## Communication Protocol
 
@@ -35,7 +75,7 @@ There are exactly two exceptions to this rule. The [`ping`](./send#ping) and
 [`pong`](./receive#pong) messages, which are used to keep the WebSocket
 connection alive, are simply the strings `"ping"` and `"pong"`.
 
-## Messages
+## Message Specifications
 
 The message specifications are categorized in these docs based on the sender and
 receiver of the message:

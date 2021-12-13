@@ -1,29 +1,49 @@
+---
+title: Sterling to Provider
+---
+
 # Sterling -> Provider
 
 The `sterling-connection` middleware sends messages to the data provider,
-usually to ask the data provider for some data or to let the data provider know
+typically to ask the data provider for some data or to let the provider know
 that the user has interacted with the interface in some way.
 
 This page outlines all of the messages that the middleware can send to the data
-provider and under which circumstances those messages will be sent.
+provider, under which circumstances those messages will be sent, and when a
+response from the provider is expected.
 
-## `action`
+## `click`
 
-A message notifying the data provider that an action button was clicked by the
-user while viewing a specific datum.
+A message notifying the data provider that a [`Button`](./types#button) was
+clicked by the user while viewing a specific datum.
+
+#### Payload Fields
+
+- `id`: The ID of the datum associated with the button that was clicked.
+- `onClick`: The string value from the `onClick` field of the button that was
+  clicked.
+
+#### Payload Types
+
+```typescript
+{
+  id: string;
+  onClick: string;
+}
+```
 
 #### Example
 
-In this example, a [`Button`](./types#button) with the id `"next"` has been
-clicked by the user while viewing datum with the id `"1"`.
+In this example, a button with the fields `{ text: "Next", onClick: "next" }`
+has been clicked by the user while viewing datum with the id `"1"`.
 
 ```json
 {
-  "type": "action",
+  "type": "click",
   "version": 1,
   "payload": {
-    "action": "next",
-    "datum": "1"
+    "id": "1",
+    "onClick": "next"
   }
 }
 ```
@@ -75,7 +95,7 @@ a specific datum. Respond with the result of evaluating the expression with an
   "version": 1,
   "payload": {
     "id": "0",
-    "datum": "1",
+    "datumId": "1",
     "expression": "univ"
   }
 }
@@ -86,6 +106,15 @@ a specific datum. Respond with the result of evaluating the expression with an
 A message requesting data about the data provider, such as the provider's name
 and the types of views it supports. Respond in turn with a
 [`meta`](./receive#meta) message.
+
+#### Example
+
+```json
+{
+  "type": "meta",
+  "version": 1
+}
+```
 
 ## `ping`
 
@@ -98,18 +127,4 @@ a `ping`. The two together are used to keep the connection between the
 
 ```
 "ping"
-```
-
-## `provider-meta`
-
-A request for metadata from the provider. This message is sent to the data
-provider after the connection is established (or re-established).
-
-#### Example
-
-```json
-{
-  "type": "provider-meta",
-  "version": 1
-}
 ```

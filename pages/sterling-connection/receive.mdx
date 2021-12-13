@@ -1,3 +1,7 @@
+---
+title: Provider to Sterling
+---
+
 import Callout from "/nextra-theme-sterling/callout";
 
 # Provider -> Sterling
@@ -39,10 +43,10 @@ All fields are optional.
 #### Examples
 
 In this example, Alloy 5 has generated an instance to display in Sterling. When
-the instance is displayed, a "Next" button should be visible that, when clicked
-by the user, sends an action back to Alloy with the string "next". Furthermore,
-Alloy is able to evaluate expressions for this instance, so the evaluator UI
-should be available when viewing the instance.
+the instance is displayed, a "Next" button should be visible that notifies Alloy
+when it is clicked by sending a [`click`](./send#click) message with the string
+"next". Furthermore, Alloy is able to evaluate expressions for this instance, so
+the evaluator UI should be available when viewing the instance.
 
 ```json
 {
@@ -52,9 +56,10 @@ should be available when viewing the instance.
     "enter": [
       {
         "id": "1",
-        "actions": [{ "id": "next", "text": "Next" }],
-        "evaluator": true,
-        "data": "<alloy>...</alloy>"
+        "format": "alloy",
+        "data": "<alloy>...</alloy>",
+        "buttons": [{ "text": "Next", "onClick": "next" }],
+        "evaluator": true
       }
     ]
   }
@@ -74,9 +79,10 @@ the new instance _and_ to remove the ability to use the evaluator or click the
     "enter": [
       {
         "id": "2",
-        "actions": [{ "id": "next", "text": "Next" }],
-        "evaluator": true,
+        "format": "alloy",
         "data": "<alloy>...</alloy>"
+        "buttons": [{ "text": "Next", "onClick": "next" }],
+        "evaluator": true
       }
     ],
     "update": [{ "id": "1", "actions": [], "evaluator": false }]
@@ -103,9 +109,10 @@ instances from Sterling and display only the new one.
     "enter": [
       {
         "id": "3",
-        "actions": [{ "id": "next", "text": "Next" }],
-        "evaluator": true,
-        "data": "<alloy>...</alloy>"
+        "format": "alloy",
+        "data": "<alloy>...</alloy>",
+        "buttons": [{ "text": "Next", "onClick": "next" }],
+        "evaluator": true
       }
     ],
     "exit": ["1", "2"]
@@ -148,10 +155,12 @@ specific datum.
 
 ## `meta`
 
-A message that includes information about a data provider, such as the
+A message that includes information about the data provider, such as the
 provider's name and the types of views it supports.
 
 #### Payload Fields
+
+All fields are optional.
 
 - `name` - The name of the provider, which will be displayed in various places
   around the Sterling UI. Defaults to `"unknown provider"` if not provided.
@@ -188,16 +197,6 @@ provider's name and the types of views it supports.
   }
 }
 ```
-
-## `message`
-
-[TODO, low priority] This will allow providers to display a message in the
-Sterling status bar.
-
-## `notify`
-
-[TODO, low priority] This will allow providers to display a
-[toast](https://chakra-ui.com/docs/feedback/toast) in the Sterling UI.
 
 ## `pong`
 

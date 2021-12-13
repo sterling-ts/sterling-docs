@@ -1,3 +1,5 @@
+import OptionalBadge from "/nextra-theme-sterling/optional-badge";
+
 # Types
 
 The TypeScript types listed on this page describe the shape of some common
@@ -10,15 +12,16 @@ The `Button` type describes a button displayed in the Sterling interface.
 
 #### Fields
 
-- `id` - A unique identifier.
-- `text` - The string to display in the button.
+- `text` - The text to display in the button.
+- `onClick` - A string that will be sent to the provider when the button is
+  clicked.
 
 #### Types
 
 ```typescript
 {
-  id: string;
   text: string;
+  onClick: string;
 }
 ```
 
@@ -31,21 +34,23 @@ that datum.
 #### Fields
 
 - `id` - A unique identifier.
-- `data` - The raw data, in a supported [format](./formats).
-- (optional) `actions` - An array of buttons that will be displayed with this
-  datum. When one of these buttons is clicked, an [`action`](./send#action)
-  message will be sent to the provider with the button's `id` as payload. No
-  actions are provided by default.
-- (optional) `evaluator` - A boolean indicating whether REPL functionality is
-  available for this datum. Defaults to false.
+- `format` - The [format](./formats) of the data.
+- `data` - The raw data, in the format specified by the `format` field.
+- `buttons` - <OptionalBadge/> An array of buttons that will be displayed with
+  this datum. When one of these buttons is clicked, an [`action`](./send#action)
+  message will be sent to the provider with the button's `action` as payload. No
+  buttons are provided by default.
+- `evaluator` - <OptionalBadge/> A boolean indicating whether REPL functionality
+  is available for this datum. Defaults to false.
 
 #### Types
 
 ```typescript
 {
   id: string;
+  format: string;
   data: string;
-  actions?: Button[];
+  buttons?: Button[];
   evaluator?: boolean;
 }
 ```
@@ -53,10 +58,14 @@ that datum.
 ## `DatumMeta`
 
 This type is identical to the [`Datum`](#datum) type with the exception of the
-`data` field, which is omitted.
+`format` and `data` fields, which are omitted.
+
+#### Fields
+
+See [`Datum`](#datum).
 
 #### Types
 
 ```typescript
-Omit<Datum, 'data'>;
+Omit<Datum, 'data' | 'format'>;
 ```
